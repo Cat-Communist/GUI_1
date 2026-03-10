@@ -5,6 +5,9 @@ namespace Bank_Deposit
         public Form1()
         {
             InitializeComponent();
+            txtInitialDeposit.Text = Properties.Settings.Default.initialDeposit.ToString();
+            txtExpectedIncrease.Text = Properties.Settings.Default.expectedIncrease.ToString();
+            txtExpectedDeposit.Text = Properties.Settings.Default.expectedDeposit.ToString();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -31,6 +34,11 @@ namespace Bank_Deposit
                 return;
             }
 
+            Properties.Settings.Default.initialDeposit = initialDeposit;
+            Properties.Settings.Default.expectedIncrease = expectedIncrease;
+            Properties.Settings.Default.expectedDeposit = double.Parse(txtExpectedDeposit.Text);
+            Properties.Settings.Default.Save();
+
             var declinedMessage = Logic.DeclineBySum(expectedIncrease);
 
             MessageBox.Show($"¬ этот мес€ц ежемес€чное увеличение превысит {declinedMessage}: " +
@@ -55,6 +63,11 @@ namespace Bank_Deposit
                 MessageBox.Show(ex.Message, "ќшибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+
+            Properties.Settings.Default.initialDeposit = initialDeposit;
+            Properties.Settings.Default.expectedIncrease = double.Parse(txtExpectedIncrease.Text);
+            Properties.Settings.Default.expectedDeposit = expectedDeposit;
+            Properties.Settings.Default.Save();
 
             var declinedMessage = Logic.DeclineBySum(expectedDeposit);
             MessageBox.Show($"„ерез это кол-во мес€цев сумма вклада превысит {declinedMessage}: " +
