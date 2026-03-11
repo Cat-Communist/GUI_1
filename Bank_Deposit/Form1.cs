@@ -10,39 +10,32 @@ namespace Bank_Deposit
             txtExpectedDeposit.Text = Properties.Settings.Default.expectedDeposit.ToString();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
         private void CalcMonthByIncr_Click(object sender, EventArgs e)
         {
             double initialDeposit, expectedIncrease;
             try
             {
-                initialDeposit = Logic.ReadFrom(txtInitialDeposit);
-                expectedIncrease = Logic.ReadFrom(txtExpectedIncrease);
+                initialDeposit = Logic.ReadFrom(txtInitialDeposit.Text.ToString());
+                expectedIncrease = Logic.ReadFrom(txtExpectedIncrease.Text.ToString());
+                if (initialDeposit < 0 || expectedIncrease < 0)
+                {
+                    throw new Exception("—уммы не могут быть меньше нул€");
+                }
             }
             catch (FormatException ex)
             {
                 MessageBox.Show(ex.Message, "ќшибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "ќшибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            Properties.Settings.Default.initialDeposit = initialDeposit;
-            Properties.Settings.Default.expectedIncrease = expectedIncrease;
-            Properties.Settings.Default.expectedDeposit = double.Parse(txtExpectedDeposit.Text);
-            Properties.Settings.Default.Save();
-
             var declinedMessage = Logic.DeclineBySum(expectedIncrease);
-
-            MessageBox.Show($"¬ этот мес€ц ежемес€чное увеличение превысит {declinedMessage}: " +
-                Logic.CalcIncrease(initialDeposit, expectedIncrease));
+            var answerMessage = Logic.CalcIncrease(initialDeposit, expectedIncrease);
+            MessageBox.Show($"¬ этот мес€ц ежемес€чное увеличение превысит {declinedMessage}: {answerMessage}");
         }
 
         private void CalcMonthByDeposit_Click(object sender, EventArgs e)
@@ -50,28 +43,35 @@ namespace Bank_Deposit
             double initialDeposit, expectedDeposit;
             try
             {
-                initialDeposit = Logic.ReadFrom(txtInitialDeposit);
-                expectedDeposit = Logic.ReadFrom(txtExpectedDeposit);
+                initialDeposit = Logic.ReadFrom(txtInitialDeposit.Text.ToString());
+                expectedDeposit = Logic.ReadFrom(txtExpectedDeposit.Text.ToString());
+                if (initialDeposit < 0 || expectedDeposit < 0)
+                {
+                    throw new Exception("—уммы не могут быть меньше нул€");
+                }
             }
             catch (FormatException ex)
             {
                 MessageBox.Show(ex.Message, "ќшибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            catch (ArgumentOutOfRangeException ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "ќшибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            Properties.Settings.Default.initialDeposit = initialDeposit;
-            Properties.Settings.Default.expectedIncrease = double.Parse(txtExpectedIncrease.Text);
-            Properties.Settings.Default.expectedDeposit = expectedDeposit;
-            Properties.Settings.Default.Save();
-
             var declinedMessage = Logic.DeclineBySum(expectedDeposit);
             MessageBox.Show($"„ерез это кол-во мес€цев сумма вклада превысит {declinedMessage}: " +
                 Logic.CalcDeposit(initialDeposit, expectedDeposit));
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Properties.Settings.Default.initialDeposit = double.Parse(txtInitialDeposit.Text);
+            Properties.Settings.Default.expectedIncrease = double.Parse(txtExpectedIncrease.Text);
+            Properties.Settings.Default.expectedDeposit = double.Parse(txtExpectedDeposit.Text);
+            Properties.Settings.Default.Save();
         }
     }
 
@@ -79,27 +79,12 @@ namespace Bank_Deposit
     {
         private static DateOnly initialDate = new DateOnly(2026, 3, 1);
 
-        public static double ReadFrom(TextBox inputField)
+        public static double ReadFrom(string inputField)
         {
             var result = 0d;
-            try
-            {
-                // берЄм только 2 цифры после зап€той
-                var input = double.Parse(inputField.Text);
-                result = Math.Truncate(input * 100) / 100;
-                if (result < 0)
-                {
-                    throw new ArgumentOutOfRangeException(nameof(inputField), "—умма не может быть меньше нул€");
-                }
-            }
-            catch (FormatException e)
-            {
-                throw;
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                throw;
-            }
+            // берЄм только 2 цифры после зап€той
+            var input = double.Parse(inputField);
+            result = Math.Truncate(input * 100) / 100;
             return result;
         }
 

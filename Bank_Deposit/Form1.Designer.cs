@@ -129,7 +129,7 @@
             Controls.Add(txtInitialDeposit);
             Name = "Form1";
             Text = "Form1";
-            Load += Form1_Load;
+            FormClosing += Form1_FormClosing;
             ResumeLayout(false);
             PerformLayout();
         }
